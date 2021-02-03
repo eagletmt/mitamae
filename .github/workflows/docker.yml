@@ -74,6 +74,7 @@ jobs:
           cd /opt/osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
           export CPPFLAGS="-I/usr/local/opt/openssl/include $CPPFLAGS"
+          export CXXFLAGS="-I/usr/local/opt/openssl/include $CXXFLAGS"
           export LDFLAGS="-L/usr/local/opt/openssl/lib $LDFLAGS"
           UNATTENDED=1 ./build.sh
       - uses: actions/checkout@v2
