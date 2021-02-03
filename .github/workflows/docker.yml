@@ -80,6 +80,7 @@ jobs:
           export CXXFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib $CXXFLAGS"
           UNATTENDED=1 ./build.sh
           popd
+          ls -l osxcross/target
 
   build-aarch64-darwin:
     name: Build mitamae-aarch64-darwin with osxcross
@@ -91,7 +92,7 @@ jobs:
         id: osxcross-cache
         with:
           key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
-          path: osxcross
+          path: osxcross/target
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
@@ -101,7 +102,8 @@ jobs:
           bundler-cache: true
       - name: Build mitamae
         run: |
-          export PATH="$PWD/osxcross/bin:$PATH"
+          ls -l osxcross/target
+          export PATH="$PWD/osxcross/target/bin:$PATH"
           bundle exec rake compile BUILD_TARGET=darwin-aarch64
           mkdir -p mitamae-build
           cp mruby/build/darwin-aarch64/bin/mitamae mitamae-build/mitamae-aarch64-darwin
