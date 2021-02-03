@@ -67,7 +67,7 @@ jobs:
       - uses: actions/cache@v2
         id: macos-sdk-cache
         with:
-          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}-v1
           path: osxcross/tarballs/MacOS${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
       - name: Package MacOS SDK
         if: steps.macos-sdk-cache.outputs.cache-hit != 'true'
@@ -91,7 +91,7 @@ jobs:
           mv osxcross-${OSXCROSS_REVISION} osxcross
       - uses: actions/cache@v2
         with:
-          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}-v1
           path: osxcross/tarballs/MacOS${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
       - uses: actions/cache@v2
         id: osxcross-cache
