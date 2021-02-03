@@ -73,6 +73,8 @@ jobs:
           sudo mv osxcross-${OSXCROSS_REVISION} /opt/osxcross
           cd /opt/osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
+          export CPPFLAGS="-I/usr/local/opt/openssl/include $CPPFLAGS"
+          export LDFLAGS="-L/usr/local/opt/openssl/lib $LDFLAGS"
           UNATTENDED=1 ./build.sh
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
