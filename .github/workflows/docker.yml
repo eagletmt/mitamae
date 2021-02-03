@@ -35,9 +35,7 @@ jobs:
           pushd osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh
           mv MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz tarballs/
-          tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz | sort | shasum
           popd
-          ls -l osxcross/tarballs || true
 
   osxcross:
     name: Build osxcross
@@ -61,13 +59,9 @@ jobs:
       - name: Build osxcross
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
         run: |
-          ls -l osxcross/target || true
-          ls -l osxcross/tarballs || true
           pushd osxcross
-          tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz | sort | sha256sum
-          tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz
+          tools/get_dependencies.sh
           UNATTENDED=1 ./build.sh
-          find target | sort | sha256sum
           popd
 
   build-aarch64-darwin:
@@ -90,8 +84,6 @@ jobs:
           path: osxcross/target
       - name: Build mitamae
         run: |
-          ls -l osxcross/target || true
-          (cd osxcross; find target | sort | sha256sum)
           export PATH="$PWD/osxcross/target/bin:$PATH"
           bundle exec rake compile BUILD_TARGET=darwin-aarch64
           mkdir -p mitamae-build
