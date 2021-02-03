@@ -65,6 +65,7 @@ jobs:
           ls -l osxcross/tarballs || true
           pushd osxcross
           tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz | sort | sha256sum
+          tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz
           UNATTENDED=1 ./build.sh
           find target | sort | sha256sum
           popd
