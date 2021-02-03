@@ -55,7 +55,7 @@ jobs:
           path: mitamae-build/
 
   build-aarch64-darwin:
-    name: Build osxcross
+    name: Build mitamae-aarch64-darwin with osxcross
     runs-on: macos-latest
     env:
       OSXCROSS_REVISION: 4287300a5c96397a2ee9ab3942e66578a1982031
