@@ -67,13 +67,13 @@ jobs:
         id: osxcross-cache
         with:
           key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
-          path: /opt/osxcross/target
+          path: osxcross/target
       - name: Build osxcross
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
         run: |
           curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
-          sudo mv osxcross-${OSXCROSS_REVISION} /opt/osxcross
-          pushd /opt/osxcross
+          mv osxcross-${OSXCROSS_REVISION} osxcross
+          pushd osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
           export CPPFLAGS="-I/usr/local/opt/openssl/include $CPPFLAGS"
           export LDFLAGS="-L/usr/local/opt/openssl/lib $LDFLAGS"
@@ -91,7 +91,7 @@ jobs:
         id: osxcross-cache
         with:
           key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
-          path: /opt/osxcross/target
+          path: osxcross
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
@@ -101,7 +101,7 @@ jobs:
           bundler-cache: true
       - name: Build mitamae
         run: |
-          export PATH="/opt/osxcross/target/bin:$PATH"
+          export PATH="$PWD/osxcross/bin:$PATH"
           bundle exec rake compile BUILD_TARGET=darwin-aarch64
           mkdir -p mitamae-build
           cp mruby/build/darwin-aarch64/bin/mitamae mitamae-build/mitamae-aarch64-darwin
