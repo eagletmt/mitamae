@@ -71,12 +71,13 @@ jobs:
         run: |
           curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
           sudo mv osxcross-${OSXCROSS_REVISION} /opt/osxcross
-          cd /opt/osxcross
+          pushd /opt/osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
           export CPPFLAGS="-I/usr/local/opt/openssl/include $CPPFLAGS"
           export LDFLAGS="-L/usr/local/opt/openssl/lib $LDFLAGS"
           export CXXFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib $CXXFLAGS"
           UNATTENDED=1 ./build.sh
+          popd
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
@@ -86,6 +87,16 @@ jobs:
         run: |
           export PATH="/opt/osxcross/target/bin:$PATH"
           bundle exec rake compile BUILD_TARGET=darwin-aarch64
+          mkdir -p mitamae-build
+          cp mruby/build/darwin-aarch64/bin/mitamae mitamae-build/mitamae-aarch64-darwin
+          pushd mitamae-build
+          tar zcvf mitamae-aarch64-darwin.tar.gz mitamae-aarch64-darwin
+          popd
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: mitamae-aarch64-darwin
+          path: mitamae-build/
 
   release:
     runs-on: ubuntu-latest
@@ -117,6 +128,10 @@ jobs:
       - uses: actions/download-artifact@v1
         with:
           name: mitamae-i386-darwin
+          path: mitamae-build/
+      - uses: actions/download-artifact@v1
+        with:
+          name: mitamae-aarch64-darwin
           path: mitamae-build/
 
       - name: Release
