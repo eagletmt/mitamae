@@ -35,7 +35,7 @@ jobs:
           pushd osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh
           mv MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz tarballs/
-          tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz | sort | sha256sum
+          tar tf tarballs/MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz | sort | shasum
           popd
           ls -l osxcross/tarballs || true
 
