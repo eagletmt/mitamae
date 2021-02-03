@@ -46,7 +46,7 @@ GEM
       sfl
 
 PLATFORMS
-  x86_64-linux
+  ruby
 
 DEPENDENCIES
   docker-api
