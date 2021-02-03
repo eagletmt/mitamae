@@ -11,6 +11,11 @@ on:
       - '*'
   schedule:
     - cron: "30 15 * * *" # 7:30 PST (-8), 8:30 PDT (-7)
+
+env:
+  OSXCROSS_REVISION: 4287300a5c96397a2ee9ab3942e66578a1982031
+  XCODE_VERSION: '12.4'
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -54,17 +59,14 @@ jobs:
           name: mitamae-${{ matrix.arch }}-${{ matrix.os }}
           path: mitamae-build/
 
-  build-aarch64-darwin:
-    name: Build mitamae-aarch64-darwin with osxcross
+  osxcross:
+    name: Build osxcross
     runs-on: macos-latest
-    env:
-      OSXCROSS_REVISION: 4287300a5c96397a2ee9ab3942e66578a1982031
-      XCODE_VERSION: '12.4'
     steps:
       - uses: actions/cache@v2
         id: osxcross-cache
         with:
-          key: ${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
           path: /opt/osxcross/target
       - name: Build osxcross
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
@@ -78,6 +80,18 @@ jobs:
           export CXXFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib $CXXFLAGS"
           UNATTENDED=1 ./build.sh
           popd
+
+  build-aarch64-darwin:
+    name: Build mitamae-aarch64-darwin with osxcross
+    runs-on: macos-latest
+    needs:
+      - osxcross
+    steps:
+      - uses: actions/cache@v2
+        id: osxcross-cache
+        with:
+          key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          path: /opt/osxcross/target
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
