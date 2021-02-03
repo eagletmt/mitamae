@@ -54,6 +54,36 @@ jobs:
           name: mitamae-${{ matrix.arch }}-${{ matrix.os }}
           path: mitamae-build/
 
+  build-aarch64-darwin:
+    name: Build osxcross
+    runs-on: macos-latest
+    env:
+      OSXCROSS_REVISION: 4287300a5c96397a2ee9ab3942e66578a1982031
+      XCODE_VERSION: '12.4'
+    steps:
+      - uses: actions/cache@v2
+        id: osxcross-cache
+        with:
+          key: ${{ env.OSXCROSS_REVISION }}-${{ XCODE_VERSION }}
+          path: /opt/osxcross/target
+      - name: Build osxcross
+        if: steps.osxcross-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
+          mv osxcross-${OSXCROSS_REVISION} /opt/osxcross
+          cd /opt/osxcross
+          XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
+          ./build.sh
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+      - name: Build mitamae
+        run: |
+          export PATH="/opt/osxcross/target/bin:$PATH"
+          bundle exec rake compile BUILD_TARGET=darwin-aarch64
+
   release:
     runs-on: ubuntu-latest
     needs:
