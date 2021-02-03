@@ -61,15 +61,15 @@ jobs:
           path: mitamae-build/
 
   macos-sdk:
-    name: Package MacOS SDK
+    name: Package MacOSX SDK
     runs-on: macos-latest
     steps:
       - uses: actions/cache@v2
         id: macos-sdk-cache
         with:
-          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}-v1
-          path: osxcross/tarballs/MacOS${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
-      - name: Package MacOS SDK
+          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          path: osxcross/tarballs/MacOSX${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
+      - name: Package MacOSX SDK
         if: steps.macos-sdk-cache.outputs.cache-hit != 'true'
         run: |
           curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
@@ -91,8 +91,8 @@ jobs:
           mv osxcross-${OSXCROSS_REVISION} osxcross
       - uses: actions/cache@v2
         with:
-          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}-v1
-          path: osxcross/tarballs/MacOS${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
+          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          path: osxcross/tarballs/MacOSX${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
       - uses: actions/cache@v2
         id: osxcross-cache
         with:
