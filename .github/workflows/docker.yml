@@ -60,7 +60,7 @@ jobs:
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
         run: |
           pushd osxcross
-          tools/get_dependencies.sh
+          sudo tools/get_dependencies.sh
           UNATTENDED=1 ./build.sh
           popd
 
