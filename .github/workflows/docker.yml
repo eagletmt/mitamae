@@ -70,7 +70,7 @@ jobs:
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
         run: |
           curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
-          mv osxcross-${OSXCROSS_REVISION} /opt/osxcross
+          sudo mv osxcross-${OSXCROSS_REVISION} /opt/osxcross
           cd /opt/osxcross
           XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
           ./build.sh
