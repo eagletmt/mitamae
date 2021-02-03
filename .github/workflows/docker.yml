@@ -99,6 +99,8 @@ jobs:
         with:
           key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
           path: osxcross/target
+      - name: Force static linking to Oniguruma
+        run: brew uninstall --force --ignore-dependencies oniguruma
       - name: Build mitamae
         run: |
           export PATH="$PWD/osxcross/target/bin:$PATH"
