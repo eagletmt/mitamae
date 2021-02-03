@@ -95,7 +95,7 @@ jobs:
       - uses: actions/cache@v2
         id: osxcross-cache
         with:
-          key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          key: osxcross-${{ runner.os }}-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
           path: osxcross/target
       - name: Build osxcross
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
@@ -120,7 +120,7 @@ jobs:
       - uses: actions/cache@v2
         id: osxcross-cache
         with:
-          key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          key: osxcross-${{ runner.os }}-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
           path: osxcross/target
       - name: Build mitamae
         run: |
