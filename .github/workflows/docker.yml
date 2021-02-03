@@ -15,6 +15,7 @@ on:
 env:
   OSXCROSS_REVISION: 4287300a5c96397a2ee9ab3942e66578a1982031
   XCODE_VERSION: '12.4'
+  MACOS_SDK_VERSION: '11.1'
 
 jobs:
   test:
@@ -59,10 +60,38 @@ jobs:
           name: mitamae-${{ matrix.arch }}-${{ matrix.os }}
           path: mitamae-build/
 
-  osxcross:
-    name: Build osxcross
+  macos-sdk:
+    name: Package MacOS SDK
     runs-on: macos-latest
     steps:
+      - uses: actions/cache@v2
+        id: macos-sdk-cache
+        with:
+          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          path: osxcross/tarballs/MacOS${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
+      - name: Package MacOS SDK
+        if: steps.macos-sdk-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
+          mv osxcross-${OSXCROSS_REVISION} osxcross
+          pushd osxcross
+          XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX${MACOS_SDK_VERSION}.sdk.tar.xz tarballs/
+          popd
+
+  osxcross:
+    name: Build osxcross
+    runs-on: ubuntu-latest
+    needs:
+      - macos-sdk
+    steps:
+      - name: Download osxcross
+        run: |
+          curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
+          mv osxcross-${OSXCROSS_REVISION} osxcross
+      - uses: actions/cache@v2
+        with:
+          key: macos-sdk-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
+          path: osxcross/tarballs/MacOS${{ env.MACOS_SDK_VERSION }}.sdk.tar.xz
       - uses: actions/cache@v2
         id: osxcross-cache
         with:
@@ -71,19 +100,13 @@ jobs:
       - name: Build osxcross
         if: steps.osxcross-cache.outputs.cache-hit != 'true'
         run: |
-          curl -sSLf https://github.com/tpoechtrager/osxcross/archive/${OSXCROSS_REVISION}.tar.gz | tar zxf -
-          mv osxcross-${OSXCROSS_REVISION} osxcross
           pushd osxcross
-          XCODEDIR=/Applications/Xcode_${XCODE_VERSION}.app tools/gen_sdk_package.sh && mv MacOSX*.sdk.tar.xz tarballs/
-          export CPPFLAGS="-I/usr/local/opt/openssl/include $CPPFLAGS"
-          export LDFLAGS="-L/usr/local/opt/openssl/lib $LDFLAGS"
-          export CXXFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib $CXXFLAGS"
           UNATTENDED=1 ./build.sh
           popd
 
   build-aarch64-darwin:
     name: Build mitamae-aarch64-darwin with osxcross
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs:
       - osxcross
     steps:
@@ -99,8 +122,6 @@ jobs:
         with:
           key: osxcross-${{ env.OSXCROSS_REVISION }}-${{ env.XCODE_VERSION }}
           path: osxcross/target
-      - name: Force static linking to Oniguruma
-        run: brew uninstall --force --ignore-dependencies oniguruma
       - name: Build mitamae
         run: |
           export PATH="$PWD/osxcross/target/bin:$PATH"
